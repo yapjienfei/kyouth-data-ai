@@ -1,9 +1,9 @@
 import sys
 from pathlib import Path
 from src.ingestor import ingest_all_mhtml
-from src.processor import process_all_html 
-from src.loader import load_all_jsons      
-from src.profiler import run_data_profile   
+from src.processor import process_all_html
+from src.loader import load_all_jsons
+from src.profiler import run_data_profile
 
 SOURCE_DIR = Path("data/0_source")
 BRONZE_DIR = Path("data/1_bronze")
@@ -46,12 +46,12 @@ def run_all():
     print("\n" + "🚀" * 30)
     print("STARTING ALL ETL PIPELINE")
     print("🚀" * 30)
-    
+
     run_bronze()
     run_silver()
     run_gold()
     run_profile()
-    
+
     print("\n" + "✅" * 30)
     print("ALL ETL PIPELINE COMPLETED SUCCESSFULLY")
     print("✅" * 30 + "\n")
@@ -75,9 +75,9 @@ def main():
     if len(sys.argv) < 2:
         print_usage()
         sys.exit(0)
-    
+
     command = sys.argv[1].lower()
-    
+
     # Route to appropriate function
     if command == "ingest":
         run_bronze()
