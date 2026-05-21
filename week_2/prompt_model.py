@@ -151,8 +151,7 @@ def main():
         if "Error" in response or "timed out" in response:
             print(f"⚠️  Status: FAILED")
         else:
-            print(f"✅ Status: SUCCESS")ls
-        
+            print(f"✅ Status: SUCCESS")
         print(f"{'─' * 70}")
 
 
