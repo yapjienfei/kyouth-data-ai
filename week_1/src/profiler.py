@@ -110,9 +110,7 @@ def run_data_profile(db_path: str) -> None:
         return
     
     # Print formatted report
-    print("\n" + "=" * 50)
-    print("🔍 DATA QUALITY REPORT")
-    print("=" * 50)
+    print("\n--- 🔍 DATA QUALITY REPORT ---")
     
     # Total records
     print(f"📈 Total Records: {stats['total_records']}")

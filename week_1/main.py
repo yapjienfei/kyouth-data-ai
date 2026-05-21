@@ -38,9 +38,6 @@ def run_gold():
 
 def run_profile():
     """Run data quality profile."""
-    print("\n" + "=" * 60)
-    print("🔍 DATA QUALITY REPORT")
-    print("=" * 60)
     run_data_profile(str(GOLD_DIR / DB_NAME))
 
 

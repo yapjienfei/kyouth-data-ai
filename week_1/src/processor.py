@@ -35,13 +35,6 @@ def extract_job_title(soup: BeautifulSoup) -> Optional[str]:
     title_elem = soup.find(attrs={"data-automation": "job-detail-title"})
     if title_elem:
         return title_elem.get_text(strip=True)
-    
-    og_title = soup.find("meta", property="og:title")
-    if og_title and og_title.get("content"):
-        title = og_title["content"]
-        title = re.sub(r'\s+Job\s+in\s+.*$', '', title)
-        return title.strip()
-    
     return None
 
 
@@ -57,10 +50,8 @@ def extract_company(soup: BeautifulSoup) -> Optional[str]:
     if company_btn:
         company = company_btn.get_text(strip=True)
         company = re.sub(r'✓$', '', company).strip()
-        return company
-    
+        return company    
     return None
-
 
 def extract_description(soup: BeautifulSoup) -> Optional[str]:
     """Extract job description from jobAdDetails."""
@@ -68,67 +59,8 @@ def extract_description(soup: BeautifulSoup) -> Optional[str]:
     if desc_elem:
         description = desc_elem.get_text(separator="\n", strip=True)
         description = re.sub(r'\n{3,}', '\n\n', description)
-        if len(description) > 5000:
-            description = description[:5000] + "..."
-        return description if len(description) > 50 else None
-    
-    og_desc = soup.find("meta", property="og:description")
-    if og_desc and og_desc.get("content"):
-        return og_desc["content"].strip()
-    
+        return description
     return None
-
-
-def process_single_html(html_path: Path) -> Tuple[Optional[Dict[str, Any]], bool]:
-    """Process a single HTML file and extract job data."""
-    try:
-        with open(html_path, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-        
-        soup = BeautifulSoup(html_content, 'html.parser')
-        
-        source_id = extract_source_id(soup)
-        job_title = extract_job_title(soup)
-        company = extract_company(soup)
-        description = extract_description(soup)
-        
-        # Debug output
-        print(f"\n📄 {html_path.name}")
-        print(f"   source_id: {source_id}")
-        print(f"   job_title: {job_title[:50] if job_title else 'None'}")
-        print(f"   company: {company}")
-        print(f"   desc_len: {len(description) if description else 0}")
-        
-        # Check required fields
-        if not source_id or not job_title or not company or not description or len(description) < 10:
-            print(f"   ❌ Missing required fields")
-            return None, False
-        
-        # Create a dictionary for the data
-        raw_data = {
-            "source_id": source_id,
-            "job_title": job_title,
-            "company": company,
-            "description": description,
-        }
-        
-        # Use Pydantic for validation only (not for dict conversion)
-        try:
-            # This validates but we don't use the returned object directly
-            JobListing(**raw_data)
-            
-            # Return the original dictionary (which has all the data)
-            print(f"   ✅ VALID - Saving to JSON")
-            return raw_data, True
-            
-        except ValidationError as e:
-            print(f"   ❌ Validation error: {e}")
-            return None, False
-            
-    except Exception as e:
-        print(f"   ❌ Exception: {type(e).__name__}: {e}")
-        return None, False
-
 
 def process_all_html(input_dir: str, output_dir: str) -> None:
     """Process all HTML files from input_dir to JSON files in output_dir."""
@@ -156,18 +88,64 @@ def process_all_html(input_dir: str, output_dir: str) -> None:
     print(f"🥈 Silver: Processing {total} files...")
     
     for html_file in html_files:
-        job_data, is_valid = process_single_html(html_file)
-        
-        if is_valid and job_data:
-            output_file = output_path / f"{html_file.stem}.json"
+        try:
+            with open(html_file, 'r', encoding='utf-8') as f:
+                html_content = f.read()
             
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(job_data, f, indent=2, ensure_ascii=False)
+            soup = BeautifulSoup(html_content, 'html.parser')
             
-            #print(f"   💾 Saved to {output_file.name}")
-            processed += 1
-        else:
-            print(f"⚠️ Skipped {html_file.name} - missing required fields")
+            source_id = extract_source_id(soup)
+            job_title = extract_job_title(soup)
+            company = extract_company(soup)
+            description = extract_description(soup)
+            
+            # Track missing fields for warning messages
+            missing_fields = []
+            if not source_id:
+                missing_fields.append("source_id")
+            if not job_title:
+                missing_fields.append("job_title")
+            if not company:
+                missing_fields.append("company")
+            if not description or len(description) < 10:
+                missing_fields.append("description")
+            
+            # Print missing field warnings
+            if missing_fields:
+                for field in missing_fields:
+                    print(f"⚠️ Missing {field} in: {html_file.name}")
+            
+            # Check required fields
+            if not source_id or not job_title or not company or not description or len(description) < 10:
+                skipped += 1
+                continue
+            
+            # Create a dictionary for the data
+            raw_data = {
+                "source_id": source_id,
+                "job_title": job_title,
+                "company": company,
+                "description": description,
+            }
+            
+            # Validate with Pydantic
+            try:
+                JobListing(**raw_data)
+                
+                output_file = output_path / f"{html_file.stem}.json"
+                
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    json.dump(raw_data, f, indent=2, ensure_ascii=False)
+                
+                print(f"✅ Processed: {html_file.name}")
+                processed += 1
+                
+            except ValidationError as e:
+                print(f"❌ Validation error in {html_file.name}: {e}")
+                skipped += 1
+                
+        except Exception as e:
+            print(f"❌ Error processing {html_file.name}: {type(e).__name__}: {e}")
             skipped += 1
     
     print(f"\n📊 Silver Summary:")

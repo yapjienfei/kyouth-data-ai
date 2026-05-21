@@ -197,16 +197,6 @@ Automated orchestration tools (like Apache Airflow or Dagster) provide checkpoin
 | Database locked | Close any SQLite browsers and re-run |
 | Permission denied | Ensure `data/` directory has write permissions |
 
-### Validation Rules
-
-The Silver layer enforces:
-- `source_id`: 5-15 digits, numeric only
-- `job_title`: 3-200 characters, not generic
-- `company`: 2-100 characters, not "Private Advertiser"
-- `description`: 100-10000 characters
-
-Files failing these rules are skipped and appear in the summary as "Skipped".
-
 ## License
 
 This project is for educational purposes as part of a data engineering course.
