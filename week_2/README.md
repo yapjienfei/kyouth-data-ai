@@ -28,37 +28,37 @@ The project balances cloud-powered performance (Gemini) with local control, priv
 
 2. Install uv package manager
    curl -LsSf https://astral.sh/uv/install.sh | sh
-   # or on Windows (PowerShell)
+   or on Windows (PowerShell)
    powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 3. Install dependencies
    uv sync
 
 4. Install and setup Ollama
-   # Install Ollama (macOS/Linux)
+   Install Ollama (macOS/Linux)
    curl -fsSL https://ollama.com/install.sh | sh
    
-   # or download from https://ollama.com/download (Windows)
+   or download from https://ollama.com/download (Windows)
    
-   # Pull required models
+    Pull required models
    ollama pull phi3:latest
    ollama pull deepseek-r1:1.5b
    ollama pull llama3.2:1b
    
-   # Verify installation
+   Verify installation
    ollama serve  # Start the service
    curl http://localhost:11434  # Should return "Ollama is running"
 
 5. Configure Environment Variables (for Gemini API, optional)
-   # Create .env file
+   Create .env file
    echo 'GOOGLE_API_KEY=your-actual-api-key-here' > .env
    
-   # NEVER commit .env to version control!
+   NEVER commit .env to version control!
 
 6. Prepare Database
    mkdir -p data
-   # Place your jobs_d1.db in the data/ directory
-   # Place your resume.txt in the data/ directory
+   Place your jobs db in the data/ directory
+   Place your resume.txt in the data/ directory
 
 ## Usage
 
@@ -93,7 +93,7 @@ Expected output:
    Total tokens used: 3464, took 56312ms
    Successfully tagged: 8, Failed: 0, Skipped: 0
 
-### Skill Gap Analysis (find_skill_gaps.py)
+Skill Gap Analysis (find_skill_gaps.py)
 
 This script compares resume skills against job requirements to identify gaps.
 
@@ -104,9 +104,9 @@ Run with custom paths:
    uv run find_skill_gaps.py --resume /path/to/resume.txt --db /path/to/jobs.db
 
 Expected output:
-   ============================================================
+   =======================
    🔍 SKILL GAP FINDER
-   ============================================================
+   =======================
    
    ✅ Resume: data/resume.txt
    ✅ Database: data/jobs_d1.db
@@ -118,9 +118,9 @@ Expected output:
    📊 Analyzing job database...
       Found 47 unique skills across 8 jobs
    
-   ============================================================
+   ===========================
    SKILL GAP ANALYSIS RESULTS
-   ============================================================
+   ============================
    ⏱️  Time taken: 79.98 seconds
    
    📋 Resume skills (6):
@@ -129,9 +129,9 @@ Expected output:
    🔴 SKILL GAPS (29):
       alibaba cloud, aws, docker, kubernetes, jenkins, kafka, mongodb, nginx, php, redis
    
-   ============================================================
+   =============================
    FINAL RESULT (SkillGapResult)
-   ============================================================
+   =============================
    gaps=['alibaba cloud', 'aws', 'docker', 'kubernetes', ...]
 
 ## API / Function Reference
