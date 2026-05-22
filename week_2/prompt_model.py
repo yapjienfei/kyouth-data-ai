@@ -11,6 +11,7 @@ import json
 import google.generativeai as genai
 from datetime import datetime, timedelta
 from collections import defaultdict
+from dotenv import load_dotenv
 
 # ============================================================================
 # PART 1: GEMINI API CONFIGURATION
@@ -18,6 +19,8 @@ from collections import defaultdict
 # This section configures the Google Gemini API using your API key.
 # The API key should be stored in an environment variable for security.
 # NEVER hardcode API keys in your source code!
+
+load_dotenv()
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 if GOOGLE_API_KEY:
@@ -28,7 +31,7 @@ if GOOGLE_API_KEY:
 GEMINI_MODELS = {
     'gemini-2.5-flash',      # Fast, efficient model
     'gemini-2.5-flash-lite', # Lighter version for simpler tasks
-    'gemini-3.5-flash'       # Newer version with better capabilities
+    'gemini-3-flash-preview'       # Newer version with better capabilities
 }
 
 # ============================================================================
@@ -235,7 +238,14 @@ class RateLimiter:
 
 # Create a global instance of the rate limiter
 # This loads rate_limits.txt once at startup and tracks usage throughout the script
-rate_limiter = RateLimiter("rate_limits.txt")
+rate_limiter = None
+
+def get_rate_limiter():
+    """Lazy initialization of rate limiter."""
+    global rate_limiter
+    if rate_limiter is None:
+        rate_limiter = RateLimiter("rate_limits.txt")
+    return rate_limiter
 
 # ============================================================================
 # PART 3: MAIN PROMPT FUNCTION (WITH RATE LIMIT INTEGRATION)
@@ -265,6 +275,7 @@ def prompt_model(model: str, prompt: str) -> str:
         if model in GEMINI_MODELS:
             # STEP 1: Estimate token usage for this request
             # Rough estimate: 1.3 tokens per word (typical for English)
+            limiter = get_rate_limiter()
             estimated_tokens = len(prompt.split()) * 1.3
             
             # STEP 2: Check if we're within rate limits
@@ -395,9 +406,9 @@ def display_rate_limit_status():
         stats = rate_limiter.get_usage_stats(model)
         if stats:
             print(f"\n🔹 {model}")
-            print(f"   📈 RPM: {stats['rpm_used']}/{stats['rpm_limit']} ( {stats['rpm_remaining']} remaining)")
-            print(f"   🔤 TPM: {stats['tpm_used']:,}/{stats['tpm_limit']:,} ( {stats['tpm_remaining']:,} remaining)")
-            print(f"   📅 RPD: {stats['rpd_used']}/{stats['rpd_limit']} ( {stats['rpd_remaining']} remaining)")
+            print(f"   📈 RPM: {stats['rpm_used']}/{stats['rpm_limit']} ({stats['rpm_remaining']} remaining)")
+            print(f"   🔤 TPM: {stats['tpm_used']:,}/{stats['tpm_limit']:,} ({stats['tpm_remaining']:,} remaining)")
+            print(f"   📅 RPD: {stats['rpd_used']}/{stats['rpd_limit']} ({stats['rpd_remaining']} remaining)")
             
             # Show reset information
             if stats['rpm_used'] > 0:
@@ -405,7 +416,6 @@ def display_rate_limit_status():
             if stats['rpd_used'] > 0:
                 hours_left = 24 - datetime.now().hour
                 print(f"   ⏰ RPD resets in: ~{hours_left} hours")
-
 
 def main():
     """
@@ -424,17 +434,17 @@ def main():
     
     # Define test cases for Ollama models
     test_cases = [
-        ("phi3", "What is Python? Answer in one sentence.", "Ollama - phi3"),
-        ("deepseek-r1:1.5b", "What is machine learning? Answer in one sentence.", "Ollama - DeepSeek R1 1.5B"),
-        ("llama3.2:1b", "What is artificial intelligence? Answer in one sentence.", "Ollama - Llama 3.2 1B"),
+        #("phi3", "What is Python? Answer in one sentence.", "Ollama - phi3"),
+        #("deepseek-r1:1.5b", "What is machine learning? Answer in one sentence.", "Ollama - DeepSeek R1 1.5B"),
+        #("llama3.2:1b", "What is artificial intelligence? Answer in one sentence.", "Ollama - Llama 3.2 1B"),
     ]
     
     # Add Gemini test cases if API key is available
     if GOOGLE_API_KEY:
         gemini_cases = [
-            ("gemini-2.5-flash", "What is the capital of France? Answer in one sentence.", "Gemini 2.5 Flash"),
-            ("gemini-2.5-flash-lite", "Explain quantum computing in one sentence.", "Gemini 2.5 Flash Lite"),
-            ("gemini-3.5-flash", "What is the meaning of life? Answer in one sentence.", "Gemini 3.5 Flash"),
+            #("gemini-2.5-flash", "What is the capital of France? Answer in one sentence.", "Gemini 2.5 Flash"),
+            #("gemini-2.5-flash-lite", "Explain quantum computing in one sentence.", "Gemini 2.5 Flash Lite"),
+            ("gemini-3-flash-preview", "What is the meaning of life? Answer in one sentence.", "Gemini 3 Flash Preview"),
         ]
         test_cases.extend(gemini_cases)
     else:
@@ -519,6 +529,98 @@ def main():
     print("=" * 80)
     print("   All usage tracking is done in memory and resets automatically")
 
+
+# def test_long_prompt():
+#     """Simple test of long prompt with Gemini."""
+    
+#     # Create a long but reasonable prompt
+#     base_text = """
+#     Explain the concept of machine learning, including:
+#     - Supervised learning
+#     - Unsupervised learning  
+#     - Reinforcement learning
+#     Give examples of each.
+#     """
+    
+#     # Repeat to make it long (but within limits)
+#     long_prompt = base_text * 50  # 50 repetitions
+    
+#     word_count = len(long_prompt.split())
+#     estimated_tokens = int(word_count * 1.3)
+    
+#     print("=" * 80)
+#     print("🧪 TESTING LONG PROMPT WITH GEMINI")
+#     print("=" * 80)
+#     print(f"\n📊 Prompt size: {word_count:,} words (~{estimated_tokens:,} tokens)")
+#     print(f"📊 TPM Limit: 250,000 tokens")
+#     print(f"📊 Usage: {estimated_tokens/250000*100:.1f}% of limit")
+    
+#     if estimated_tokens > 250000:
+#         print("⚠️  Warning: Prompt exceeds TPM limit! Consider making it shorter.")
+#         return
+    
+#     prompt = "there is a car wash 20 meters from here, should i walk or drive there? Answer in 1 word."
+    
+#     print("\n⏳ Sending request...")
+#     #response, elapsed = prompt_model_with_timing("gemini-3-flash-preview", long_prompt)
+#     response, elapsed = prompt_model_with_timing("deep", prompt)
+    
+#     print(f"\n✅ Response received in {elapsed:.2f} seconds")
+#     print(f"📄 Response length: {len(response):,} characters")
+#     print(f"\n📝 Response preview (first 500 chars):\n{response[:500]}...")
+#     print("\n" + "=" * 80)
+    
+# def test_prompt():
+#     """Simple test prompt with interactive model selection."""
+    
+#     # Define available models
+#     available_models = [
+#         "phi3",
+#         "deepseek-r1:1.5b", 
+#         "llama3.2:1b"
+#     ]
+    
+#     # Also add Gemini models if API key is available
+#     if GOOGLE_API_KEY:
+#         available_models.extend([
+#             "gemini-2.5-flash",
+#             "gemini-2.5-flash-lite",
+#             "gemini-3-flash-preview"
+#         ])
+    
+#     # Display model menu
+#     print("\n" + "=" * 60)
+#     print("📋 AVAILABLE MODELS")
+#     print("=" * 60)
+#     for i, model in enumerate(available_models, 1):
+#         print(f"  {i}. {model}")
+#     print("=" * 60)
+    
+#     # Get user choice
+#     while True:
+#         try:
+#             choice = input(f"\nSelect model (1-{len(available_models)}): ").strip()
+#             idx = int(choice) - 1
+#             if 0 <= idx < len(available_models):
+#                 model = available_models[idx]
+#                 break
+#             else:
+#                 print(f"❌ Invalid choice. Please enter 1-{len(available_models)}")
+#         except ValueError:
+#             print("❌ Please enter a valid number")
+    
+#     prompt = "there is a car wash 20 meters from here, should i walk or drive there? Answer in 1 word only."
+    
+#     print(f"\n⏳ Sending request to {model}...")
+#     response, elapsed = prompt_model_with_timing(model, prompt)
+    
+#     print(f"\n✅ Response received in {elapsed:.2f} seconds")
+#     print(f"📄 Response length: {len(response):,} characters")
+#     print(f"\n📝 Response:\n{response}")
+#     print("\n" + "=" * 60)
+
+# if __name__ == "__main__":
+#     test_prompt()
 
 if __name__ == "__main__":
     main()
