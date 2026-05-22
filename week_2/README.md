@@ -70,9 +70,9 @@ Run the tagging script:
    uv run tag_data.py
 
 Expected output:
-   ============================================================
+   
    🔖 JOB DESCRIPTION TAGGING SYSTEM
-   ============================================================
+   
    
    ✅ Found database: /path/to/data/jobs_d1.db
    🖥️  Using Ollama model: phi3:latest
@@ -104,9 +104,9 @@ Run with custom paths:
    uv run find_skill_gaps.py --resume /path/to/resume.txt --db /path/to/jobs.db
 
 Expected output:
-   =======================
+   
    🔍 SKILL GAP FINDER
-   =======================
+   
    
    ✅ Resume: data/resume.txt
    ✅ Database: data/jobs_d1.db
@@ -118,9 +118,9 @@ Expected output:
    📊 Analyzing job database...
       Found 47 unique skills across 8 jobs
    
-   ===========================
+   
    SKILL GAP ANALYSIS RESULTS
-   ============================
+   
    ⏱️  Time taken: 79.98 seconds
    
    📋 Resume skills (6):
@@ -129,9 +129,9 @@ Expected output:
    🔴 SKILL GAPS (29):
       alibaba cloud, aws, docker, kubernetes, jenkins, kafka, mongodb, nginx, php, redis
    
-   =============================
+   
    FINAL RESULT (SkillGapResult)
-   =============================
+   
    gaps=['alibaba cloud', 'aws', 'docker', 'kubernetes', ...]
 
 ## API / Function Reference
