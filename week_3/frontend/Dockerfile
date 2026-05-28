@@ -1,6 +1,6 @@
 # Use an official Python runtime with uv pre-installed
 # bookworm is Debian 12, a stable Linux distribution
-FROM python:3.14-slim-bookworm
+FROM python:3.14.5-bookworm
 
 RUN pip install uv==0.8.0
 
