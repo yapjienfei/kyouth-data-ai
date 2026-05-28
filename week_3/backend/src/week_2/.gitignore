@@ -1,0 +1,48 @@
+test_rate_limit.py
+# ============================================================================
+# Python & Virtual Environment
+# ============================================================================
+
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments (if not using uv)
+env/
+venv/
+
+# ============================================================================
+# API Keys & Secrets (CRITICAL for this assignment)
+# ============================================================================
+
+# Google AI API Key - NEVER COMMIT!
+.env
+
+# ============================================================================
+# Rate Limits & Data Files
+# ============================================================================
+
+# Rate limits file (contains your quota info)
+rate_limits.txt
+
+# Data directory (might contain sensitive or large files)
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================================
+# IDE & Editor Files
+# ============================================================================
+
+# VSCode
+.vscode/
+*.code-workspace
+.history/
+
+rate_usage.json
+gemini_usage.json
+gemini_skill_gap_usage.json
