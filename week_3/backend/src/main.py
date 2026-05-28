@@ -3,7 +3,7 @@ Backend Chat Server for Resume Helper Chatbot
 Receives messages from frontend and responds using AI models
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
