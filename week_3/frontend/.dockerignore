@@ -1,6 +1,36 @@
-__pycache__
+# Python cache files
+__pycache__/
 *.pyc
-.git
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git files
+.git/
 .gitignore
+
+# Environment files
 .env
+.env.local
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Documentation
 README.md
+*.md
+
+# OS files
+.DS_Store
+Thumbs.db
