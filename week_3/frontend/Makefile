@@ -1,6 +1,10 @@
 # Makefile for Frontend Docker Service
 # Usage: make <command>
 
+-include .env
+export
+BACKEND_URL ?= http://localhost:8001
+
 # Variables
 IMAGE_NAME := frontend-server
 CONTAINER_NAME := frontend-app
@@ -55,6 +59,16 @@ run: stop
 	@echo "$(GREEN)Running container $(CONTAINER_NAME) in foreground...$(NC)"
 	@echo "$(YELLOW)Press Ctrl+C to stop$(NC)"
 	docker run --rm -p $(PORT_HOST):$(PORT_CONTAINER) --name $(CONTAINER_NAME) $(IMAGE_NAME)
+
+# Run container with backend URL (for day 2 integration)
+.PHONY: run-day2
+run-day2: stop
+	@echo "$(GREEN)Running container with backend: $(BACKEND_URL)$(NC)"
+	docker run --rm \
+		-p $(PORT_HOST):$(PORT_CONTAINER) \
+		--name $(CONTAINER_NAME) \
+		-e BACKEND_API_URL=$(BACKEND_URL) \
+		$(IMAGE_NAME)
 
 # Run container in background (detached)
 .PHONY: run-detached

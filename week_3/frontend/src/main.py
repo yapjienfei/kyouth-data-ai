@@ -1,38 +1,58 @@
 """
-Simple FastAPI web server with Jinja2 templates
-Serves a "Hello World" HTML page at the root endpoint
+FastAPI server for chat interface
+Serves HTML page and handles chat requests
 """
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
-# Create the FastAPI application instance
+# Load environment variables
+load_dotenv()
+
+# Create FastAPI app
 app = FastAPI()
 
-# FIX: Correct way to set up templates
-# Get the directory where this file is located
+# Get backend URL from environment
+BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8001")
+
+# Set up templates and static files
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = BASE_DIR / "templates"
+STATIC_DIR = BASE_DIR / "static"
 
-# Create templates directory if it doesn't exist
+# Create directories if they don't exist
 TEMPLATES_DIR.mkdir(exist_ok=True)
+STATIC_DIR.mkdir(exist_ok=True)
 
-# FIX: Pass directory as a string, NOT as a Path object
-# Some versions of FastAPI/Starlette have issues with Path objects
+# Mount static files (CSS, JS)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# Set up templates
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
-# Define a GET endpoint at the root URL ("/")
 @app.get("/")
-async def home(request: Request):
+async def chat_page(request: Request):
     """
-    Handle GET requests to the root URL.
-    Returns the index.html template
+    Serve the chat interface HTML page
+    Pass the backend URL to the template
     """
-    # The request parameter is required for templates
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+        "chat_page.html", 
+        {
+            "request": request,
+            "backend_url": BACKEND_API_URL
+        }
+    )
 
-# Optional health check endpoint
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "frontend-server"}
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "frontend-chat"}
+
+# Note: The actual chat endpoint will be implemented in the backend service
+# This frontend only serves the UI and proxies requests to the backend
