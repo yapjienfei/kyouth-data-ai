@@ -3,10 +3,13 @@ name = "week_2"
 version = "0.1.0"
 description = "LLM prompting with Ollama and Gemini"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = "==3.14.5"
 dependencies = [
-    "google-generativeai>=0.8.0",
+    "google-genai>=1.0.0",
     "python-dotenv>=1.2.2",
     "requests>=2.31.0",
+    "ruff==0.15.14",
 ]
 
+[tool.uv]
+required-version = "==0.8.0" 
