@@ -187,9 +187,11 @@
         <div class="input-area">
             <div class="row g-2">
                 <div class="col-md-7">
-                    <input type="text" class="form-control" id="userInput" 
-                           placeholder="Type your message here..." 
-                           autocomplete="off">
+                    <textarea class="form-control" id="userInput" 
+                            placeholder="Type your message here..." 
+                            autocomplete="off"
+                            rows="1"
+                            style="resize: none;"></textarea>
                 </div>
                 <div class="col-md-5">
                     <div class="d-flex gap-2">
@@ -476,7 +478,7 @@
         }
         
         // Send message on Enter key
-        userInput.addEventListener('keypress', (e) => {
+        userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();

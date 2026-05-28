@@ -3,10 +3,8 @@ FastAPI server for chat interface
 Serves HTML page and handles chat requests
 """
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -20,17 +18,12 @@ app = FastAPI()
 # Get backend URL from environment
 BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8001")
 
-# Set up templates and static files
+# Set up templates
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = BASE_DIR / "templates"
-STATIC_DIR = BASE_DIR / "static"
 
 # Create directories if they don't exist
 TEMPLATES_DIR.mkdir(exist_ok=True)
-STATIC_DIR.mkdir(exist_ok=True)
-
-# Mount static files (CSS, JS)
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # Set up templates
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
@@ -53,6 +46,3 @@ async def chat_page(request: Request):
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": "frontend-chat"}
-
-# Note: The actual chat endpoint will be implemented in the backend service
-# This frontend only serves the UI and proxies requests to the backend

@@ -21,8 +21,6 @@ RUN uv sync --frozen --no-dev
 # The .dockerignore file should exclude things like __pycache__, .git, etc.
 COPY src/ ./src/
 
-RUN mkdir -p src/static
-
 # Tell Docker that the container will listen on port 8000
 # This doesn't actually publish the port, it's just documentation
 EXPOSE 8000
