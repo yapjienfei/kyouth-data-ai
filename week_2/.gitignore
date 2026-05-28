@@ -45,3 +45,4 @@ data/
 
 rate_usage.json
 gemini_usage.json
+gemini_skill_gap_usage.json
