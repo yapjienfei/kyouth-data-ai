@@ -4,3 +4,5 @@ __pycache__
 .gitignore
 .env
 README.md
+.python-version
+.venv

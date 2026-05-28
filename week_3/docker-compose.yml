@@ -1,22 +1,38 @@
+
 services:
+  # Backend service - AI processing
   backend:
     build: ./backend
+    container_name: resume-backend
     ports:
-      - "8000:8000"
-    env_file:
-      - .env
+      - "8001:8001"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}  # From .env file
     volumes:
+      # Mount for development - code changes auto-reload
       - ./backend/src:/app/src
+    networks:
+      - app-network
     restart: unless-stopped
 
+  # Frontend service - Chat interface
   frontend:
     build: ./frontend
+    container_name: resume-frontend
     ports:
-      - "5000:5000"
+      - "8000:8000"
+    environment:
+      - BACKEND_API_URL=http://localhost:8001
     depends_on:
       - backend
-    env_file:
-      - .env
     volumes:
+      # Mount for development - code changes auto-reload
       - ./frontend/src:/app/src
+    networks:
+      - app-network
     restart: unless-stopped
+
+# Shared network so services can communicate
+networks:
+  app-network:
+    driver: bridge

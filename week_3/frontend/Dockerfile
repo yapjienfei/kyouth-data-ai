@@ -25,10 +25,8 @@ COPY src/ ./src/
 # This doesn't actually publish the port, it's just documentation
 EXPOSE 8000
 
-ENV BACKEND_API_URL=http://localhost:8001
-
 # Set the default command to run when the container starts
 # ENTRYPOINT: The main command to run
 # CMD: Arguments passed to the entrypoint
 ENTRYPOINT ["uv", "run", "uvicorn"]
-CMD ["--app-dir", "src", "--host", "0.0.0.0", "--port", "8000", "main:app"]
+CMD ["--app-dir", "src", "--host", "0.0.0.0", "--port", "8000", "--reload", "main:app"]
