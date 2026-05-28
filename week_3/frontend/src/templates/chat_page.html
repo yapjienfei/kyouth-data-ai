@@ -8,10 +8,18 @@
     <!-- Backend URL from environment variable -->
     <meta name="backend-url" content="{{ backend_url }}">
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Bootstrap 5 CSS - WITH SECURITY INTEGRITY -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+          rel="stylesheet" 
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
+          crossorigin="anonymous">
+    
+    <!-- Font Awesome Icons - WITH SECURITY INTEGRITY -->
+    <link rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     
     <style>
         body {
@@ -40,6 +48,12 @@
         .chat-header h1 {
             margin: 0;
             font-size: 1.5rem;
+        }
+        
+        .chat-header p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
         }
         
         .chat-history {
@@ -148,6 +162,10 @@
             border-radius: 4px;
         }
         
+        .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
@@ -155,6 +173,11 @@
         
         .btn-primary:hover {
             opacity: 0.9;
+        }
+        
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
     </style>
 </head>
@@ -216,281 +239,294 @@
         </div>
     </div>
     
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- PDF.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- PDF.js library - WITH SECURITY INTEGRITY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"
+            integrity="sha512-tqaIiFJopq4lTBmFlWF0MNzzTpDsHyug8tJaaY0VkcH5AR2ANMJlcD+3fIL+RQ4JU3K6edt9OoySKfCCyKgkng=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
     
     <script>
-        // Set up PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-        
-        // Get backend URL from meta tag
-        const BACKEND_URL = document.querySelector('meta[name="backend-url"]')?.content || 'http://localhost:8001';
-        
-        // DOM elements
-        const chatHistory = document.getElementById('chatHistory');
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const pdfBtn = document.getElementById('pdfBtn');
-        const pdfUpload = document.getElementById('pdfUpload');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-        const pdfPreview = document.getElementById('pdfPreview');
-        const clearFileBtn = document.getElementById('clearFileBtn');
-        const loading = document.getElementById('loading');
-        
-        // Store uploaded PDF content
-        let uploadedPDFText = null;
-        let uploadedPDFName = null;
-        
-        // Set welcome message time
-        document.getElementById('welcomeTime').textContent = new Date().toLocaleTimeString();
-        
-        // ========== PDF HANDLERS ==========
-        
-        // PDF button click - trigger file input
-        if (pdfBtn) {
-            pdfBtn.addEventListener('click', () => {
-                console.log('PDF button clicked');
-                pdfUpload.click();
-            });
-        } else {
-            console.error('PDF button not found!');
-        }
-        
-        // Clear file button
-        if (clearFileBtn) {
-            clearFileBtn.addEventListener('click', () => {
-                console.log('Clearing PDF');
-                clearPDF();
-            });
-        }
-        
-        // Handle PDF file upload
-        if (pdfUpload) {
-            pdfUpload.addEventListener('change', async (e) => {
-                console.log('File input changed');
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                console.log('File selected:', file.name, 'Size:', file.size);
-                
-                // Validate file type
-                if (file.type !== 'application/pdf') {
-                    alert('Please select a PDF file');
-                    pdfUpload.value = '';
-                    return;
-                }
-                
-                // Validate file size (max 10MB)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('File too large. Maximum size is 10MB');
-                    pdfUpload.value = '';
-                    return;
-                }
-                
-                fileName.textContent = file.name;
-                pdfPreview.textContent = '📄 Extracting text...';
-                fileInfo.classList.add('show');
-                
-                try {
-                    const text = await extractPDFText(file);
-                    console.log('PDF extracted, length:', text.length);
-                    uploadedPDFText = text;
-                    uploadedPDFName = file.name;
+        // Wait for DOM to be fully loaded before running code
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up PDF.js worker
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            
+            // Get backend URL from meta tag
+            const BACKEND_URL = document.querySelector('meta[name="backend-url"]')?.content || 'http://localhost:8001';
+            
+            // DOM elements
+            const chatHistory = document.getElementById('chatHistory');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const pdfBtn = document.getElementById('pdfBtn');
+            const pdfUpload = document.getElementById('pdfUpload');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const pdfPreview = document.getElementById('pdfPreview');
+            const clearFileBtn = document.getElementById('clearFileBtn');
+            const loading = document.getElementById('loading');
+            
+            // Store uploaded PDF content
+            let uploadedPDFText = null;
+            let uploadedPDFName = null;
+            
+            // Set welcome message time
+            const welcomeTime = document.getElementById('welcomeTime');
+            if (welcomeTime) {
+                welcomeTime.textContent = new Date().toLocaleTimeString();
+            }
+            
+            // ========== PDF HANDLERS ==========
+            
+            // PDF button click - trigger file input
+            if (pdfBtn) {
+                pdfBtn.addEventListener('click', () => {
+                    console.log('PDF button clicked');
+                    pdfUpload.click();
+                });
+            } else {
+                console.error('PDF button not found!');
+            }
+            
+            // Clear file button
+            if (clearFileBtn) {
+                clearFileBtn.addEventListener('click', () => {
+                    console.log('Clearing PDF');
+                    clearPDF();
+                });
+            }
+            
+            // Handle PDF file upload
+            if (pdfUpload) {
+                pdfUpload.addEventListener('change', async (e) => {
+                    console.log('File input changed');
+                    const file = e.target.files[0];
+                    if (!file) return;
                     
-                    // Show preview of extracted content
-                    const preview = text.substring(0, 200);
-                    pdfPreview.innerHTML = `<i class="fas fa-check-circle text-success"></i> Extracted ${text.length} characters.<br>
-                                            <small class="text-muted">Preview: "${preview}${text.length > 200 ? '...' : ''}"</small>`;
+                    console.log('File selected:', file.name, 'Size:', file.size);
                     
-                    // Add confirmation to chat
-                    addMessageToChat(`📎 <strong>PDF Uploaded:</strong> ${file.name}<br>
-                                     📄 Extracted ${text.length} characters from PDF. You can now ask questions about this document.`, 'bot-message');
-                    
-                } catch (error) {
-                    console.error('PDF extraction error:', error);
-                    pdfPreview.innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i> Failed to extract text. Please try again.';
-                    uploadedPDFText = null;
-                    uploadedPDFName = null;
-                }
-            });
-        }
-        
-        // Clear PDF function
-        function clearPDF() {
-            uploadedPDFText = null;
-            uploadedPDFName = null;
-            pdfUpload.value = '';
-            fileInfo.classList.remove('show');
-            addMessageToChat('📎 PDF attachment removed', 'bot-message');
-        }
-        
-        // Extract text from PDF
-        async function extractPDFText(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = async function(e) {
-                    try {
-                        const typedarray = new Uint8Array(e.target.result);
-                        const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
-                        let fullText = '';
-                        
-                        for (let i = 1; i <= pdf.numPages; i++) {
-                            const page = await pdf.getPage(i);
-                            const textContent = await page.getTextContent();
-                            const pageText = textContent.items.map(item => item.str).join(' ');
-                            fullText += pageText + '\n';
-                        }
-                        
-                        resolve(fullText.trim());
-                    } catch (error) {
-                        reject(error);
+                    // Validate file type
+                    if (file.type !== 'application/pdf') {
+                        alert('Please select a PDF file');
+                        pdfUpload.value = '';
+                        return;
                     }
+                    
+                    // Validate file size (max 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('File too large. Maximum size is 10MB');
+                        pdfUpload.value = '';
+                        return;
+                    }
+                    
+                    fileName.textContent = file.name;
+                    pdfPreview.textContent = '📄 Extracting text...';
+                    fileInfo.classList.add('show');
+                    
+                    try {
+                        const text = await extractPDFText(file);
+                        console.log('PDF extracted, length:', text.length);
+                        uploadedPDFText = text;
+                        uploadedPDFName = file.name;
+                        
+                        // Show preview of extracted content
+                        const preview = text.substring(0, 200);
+                        pdfPreview.innerHTML = `<i class="fas fa-check-circle text-success"></i> Extracted ${text.length} characters.<br>
+                                                <small class="text-muted">Preview: "${preview}${text.length > 200 ? '...' : ''}"</small>`;
+                        
+                        // Add confirmation to chat
+                        addMessageToChat(`📎 <strong>PDF Uploaded:</strong> ${file.name}<br>
+                                         📄 Extracted ${text.length} characters from PDF. You can now ask questions about this document.`, 'bot-message');
+                        
+                    } catch (error) {
+                        console.error('PDF extraction error:', error);
+                        pdfPreview.innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i> Failed to extract text. Please try again.';
+                        uploadedPDFText = null;
+                        uploadedPDFName = null;
+                    }
+                });
+            }
+            
+            // Clear PDF function
+            function clearPDF() {
+                uploadedPDFText = null;
+                uploadedPDFName = null;
+                pdfUpload.value = '';
+                fileInfo.classList.remove('show');
+                addMessageToChat('📎 PDF attachment removed', 'bot-message');
+            }
+            
+            // Extract text from PDF
+            async function extractPDFText(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = async function(e) {
+                        try {
+                            const typedarray = new Uint8Array(e.target.result);
+                            const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+                            let fullText = '';
+                            
+                            for (let i = 1; i <= pdf.numPages; i++) {
+                                const page = await pdf.getPage(i);
+                                const textContent = await page.getTextContent();
+                                const pageText = textContent.items.map(item => item.str).join(' ');
+                                fullText += pageText + '\n';
+                            }
+                            
+                            resolve(fullText.trim());
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    
+                    reader.onerror = reject;
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+            
+            // ========== CHAT HANDLERS ==========
+            
+            async function sendMessage() {
+                console.log("🚀 sendMessage() triggered!");
+                
+                const message = userInput.value.trim();
+                console.log("Message:", message);
+                console.log("Has PDF:", !!uploadedPDFText);
+                console.log("PDF Length:", uploadedPDFText?.length || 0);
+                
+                if (!message && !uploadedPDFText) {
+                    console.log("❌ No message and no PDF - returning early");
+                    alert('Please enter a message or upload a PDF');
+                    return;
+                }
+                
+                const currentMessage = message || (uploadedPDFText ? 'Please analyze this PDF document' : '');
+                
+                // Add user message to chat (show PDF info if attached)
+                let displayMessage = currentMessage;
+                if (uploadedPDFText) {
+                    displayMessage += `\n\n📎 PDF Attached: ${uploadedPDFName} (${uploadedPDFText.length} characters)`;
+                }
+                addMessageToChat(displayMessage, 'user-message');
+                
+                // Clear input
+                userInput.value = '';
+                userInput.style.height = 'auto';
+                
+                // Show loading indicator
+                loading.style.display = 'block';
+                scrollToBottom();
+                
+                const requestBody = {
+                    message: currentMessage,
+                    pdf_content: uploadedPDFText || null,
+                    pdf_name: uploadedPDFName || null,
+                    timestamp: new Date().toISOString()
                 };
                 
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
-        }
-        
-        // ========== CHAT HANDLERS ==========
-        
-        async function sendMessage() {
-            console.log("🚀 sendMessage() triggered!");
-            
-            const message = userInput.value.trim();
-            console.log("Message:", message);
-            console.log("Has PDF:", !!uploadedPDFText);
-            console.log("PDF Length:", uploadedPDFText?.length || 0);
-            
-            if (!message && !uploadedPDFText) {
-                console.log("❌ No message and no PDF - returning early");
-                alert('Please enter a message or upload a PDF');
-                return;
-            }
-            
-            const currentMessage = message || (uploadedPDFText ? 'Please analyze this PDF document' : '');
-            
-            // Add user message to chat (show PDF info if attached)
-            let displayMessage = currentMessage;
-            if (uploadedPDFText) {
-                displayMessage += `\n\n📎 PDF Attached: ${uploadedPDFName} (${uploadedPDFText.length} characters)`;
-            }
-            addMessageToChat(displayMessage, 'user-message');
-            
-            // Clear input
-            userInput.value = '';
-            
-            // Show loading indicator
-            loading.style.display = 'block';
-            scrollToBottom();
-            
-            const requestBody = {
-                message: currentMessage,
-                pdf_content: uploadedPDFText || null,
-                pdf_name: uploadedPDFName || null,
-                timestamp: new Date().toISOString()
-            };
-            
-            // Log the payload
-            console.log("═══════════════════════════════════════");
-            console.log("📤 PAYLOAD BEING SENT:");
-            console.log("Message:", requestBody.message);
-            console.log("Has PDF Content:", !!requestBody.pdf_content);
-            console.log("PDF Content Length:", requestBody.pdf_content?.length || 0);
-            console.log("PDF Name:", requestBody.pdf_name);
-            console.log("Full payload:", requestBody);
-            console.log("═══════════════════════════════════════");
-            
-            // Show in chat that we're sending (for debugging)
-            if (uploadedPDFText) {
-                addMessageToChat(`🔍 Sending request with ${uploadedPDFText.length} characters of PDF text to backend...`, 'bot-message');
-            }
-            
-            try {
-                console.log("📡 Sending fetch to:", `${BACKEND_URL}/chat`);
-                const response = await fetch(`${BACKEND_URL}/chat`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                });
+                // Log the payload
+                console.log("═══════════════════════════════════════");
+                console.log("📤 PAYLOAD BEING SENT:");
+                console.log("Message:", requestBody.message);
+                console.log("Has PDF Content:", !!requestBody.pdf_content);
+                console.log("PDF Content Length:", requestBody.pdf_content?.length || 0);
+                console.log("PDF Name:", requestBody.pdf_name);
+                console.log("Full payload:", requestBody);
+                console.log("═══════════════════════════════════════");
                 
-                console.log("📡 Response status:", response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                try {
+                    console.log("📡 Sending fetch to:", `${BACKEND_URL}/chat`);
+                    const response = await fetch(`${BACKEND_URL}/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    console.log("📡 Response status:", response.status);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log("📡 Response data:", data);
+                    addMessageToChat(data.response || data.message || 'I received your message!', 'bot-message');
+                    
+                } catch (error) {
+                    console.error("❌ Fetch error:", error);
+                    
+                    let errorMsg = `⚠️ Cannot connect to backend at ${BACKEND_URL}\n\n`;
+                    errorMsg += `But your message was prepared correctly!\n\n`;
+                    errorMsg += `📝 Message: "${currentMessage}"\n`;
+                    if (uploadedPDFText) {
+                        errorMsg += `📄 PDF Content: ${uploadedPDFText.length} characters\n`;
+                        errorMsg += `📄 PDF Preview: "${uploadedPDFText.substring(0, 100)}..."\n`;
+                    } else {
+                        errorMsg += `📄 No PDF attached\n`;
+                    }
+                    errorMsg += `\n🔧 The backend will be implemented later on port 8001.`;
+                    
+                    addMessageToChat(errorMsg, 'bot-message');
+                } finally {
+                    loading.style.display = 'none';
+                    scrollToBottom();
                 }
+            }
+            
+            function addMessageToChat(text, senderClass) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${senderClass}`;
                 
-                const data = await response.json();
-                console.log("📡 Response data:", data);
-                addMessageToChat(data.response || data.message || 'I received your message!', 'bot-message');
+                const time = new Date().toLocaleTimeString();
+                // Handle line breaks
+                const formattedText = text.replace(/\n/g, '<br>');
                 
-                // Optional: Clear PDF after successful send (comment out to keep it)
-                // clearPDF();
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        ${formattedText}
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
                 
-            } catch (error) {
-                console.error("❌ Fetch error:", error);
-                
-                let errorMsg = `⚠️ Cannot connect to backend at ${BACKEND_URL}\n\n`;
-                errorMsg += `But your message was prepared correctly!\n\n`;
-                errorMsg += `📝 Message: "${currentMessage}"\n`;
-                if (uploadedPDFText) {
-                    errorMsg += `📄 PDF Content: ${uploadedPDFText.length} characters\n`;
-                    errorMsg += `📄 PDF Preview: "${uploadedPDFText.substring(0, 100)}..."\n`;
-                } else {
-                    errorMsg += `📄 No PDF attached\n`;
-                }
-                errorMsg += `\n🔧 The backend will be implemented tomorrow on port 8001.`;
-                
-                addMessageToChat(errorMsg, 'bot-message');
-            } finally {
-                loading.style.display = 'none';
+                chatHistory.appendChild(messageDiv);
                 scrollToBottom();
             }
-        }
-        
-        function addMessageToChat(text, senderClass) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${senderClass}`;
             
-            const time = new Date().toLocaleTimeString();
-            // Handle line breaks
-            const formattedText = text.replace(/\n/g, '<br>');
-            
-            messageDiv.innerHTML = `
-                <div class="message-content">
-                    ${formattedText}
-                    <div class="message-time">${time}</div>
-                </div>
-            `;
-            
-            chatHistory.appendChild(messageDiv);
-            scrollToBottom();
-        }
-        
-        function scrollToBottom() {
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-        
-        // Send message on Enter key
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
+            function scrollToBottom() {
+                chatHistory.scrollTop = chatHistory.scrollHeight;
             }
+            
+            // Send message on Enter key (Shift+Enter creates newline)
+            if (userInput) {
+                userInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+            
+            // Send button click
+            if (sendBtn) {
+                sendBtn.addEventListener('click', sendMessage);
+            }
+            
+            // Auto-resize textarea as user types
+            if (userInput) {
+                userInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+            }
+            
+            console.log('Chat interface loaded. Backend URL:', BACKEND_URL);
+            console.log('PDF button exists:', !!pdfBtn);
+            console.log('Send button exists:', !!sendBtn);
+            console.log('User input exists:', !!userInput);
         });
-        
-        // Send button click
-        sendBtn.addEventListener('click', sendMessage);
-        
-        console.log('Chat interface loaded. Backend URL:', BACKEND_URL);
-        console.log('PDF button exists:', !!pdfBtn);
-        console.log('Send button exists:', !!sendBtn);
     </script>
 </body>
 </html>
