@@ -44,3 +44,4 @@ data/
 .history/
 
 rate_usage.json
+gemini_usage.json
