@@ -22,6 +22,7 @@ TEMPLATES_DIR.mkdir(exist_ok=True)
 # Some versions of FastAPI/Starlette have issues with Path objects
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+
 # Define a GET endpoint at the root URL ("/")
 @app.get("/")
 async def home(request: Request):
@@ -31,6 +32,7 @@ async def home(request: Request):
     """
     # The request parameter is required for templates
     return templates.TemplateResponse("index.html", {"request": request})
+
 
 # Optional health check endpoint
 @app.get("/health")

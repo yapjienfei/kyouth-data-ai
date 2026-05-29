@@ -28,6 +28,7 @@ TEMPLATES_DIR.mkdir(exist_ok=True)
 # Set up templates
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+
 @app.get("/")
 async def chat_page(request: Request):
     """
@@ -35,12 +36,9 @@ async def chat_page(request: Request):
     Pass the backend URL to the template
     """
     return templates.TemplateResponse(
-        "chat_page.html", 
-        {
-            "request": request,
-            "backend_url": BACKEND_API_URL
-        }
+        "chat_page.html", {"request": request, "backend_url": BACKEND_API_URL}
     )
+
 
 @app.get("/health")
 async def health_check():

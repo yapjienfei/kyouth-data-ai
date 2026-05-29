@@ -91,9 +91,6 @@ The frontend also has its own `frontend/.env.example`:
 # URL the frontend container uses to reach the backend
 BACKEND_API_URL=http://localhost:8001
 
-# FastAPI server bind settings
-FRONTEND_HOST=0.0.0.0
-FRONTEND_PORT=8000
 ```
 
 ---
